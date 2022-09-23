@@ -4,9 +4,9 @@ import pandas as pd
 columns = ['buying', 'maint', 'doors', 'persons',
            'lug_boot', 'safety', 'label']
 
-train_data = pd.read_csv('DecisionTree/car/train.csv', names=columns)
+train_data = pd.read_csv('car/train.csv', names=columns)
 
-test_data = pd.read_csv('DecisionTree/car/test.csv', names=columns)
+test_data = pd.read_csv('car/test.csv', names=columns)
 
 attrs = {
         'buying': ['vhigh', 'high', 'med', 'low'],

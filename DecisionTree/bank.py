@@ -7,9 +7,9 @@ columns = ['age', 'job', 'marital', 'education', 'default', 'balance',
            'campaign', 'pdays', 'previous', 'poutcome', 'y']
 
 
-train_data = pd.read_csv('DecisionTree/bank/train.csv', names=columns)
+train_data = pd.read_csv('bank/train.csv', names=columns)
 
-test_data = pd.read_csv('DecisionTree/bank/test.csv', names=columns)
+test_data = pd.read_csv('bank/test.csv', names=columns)
 
 cont_attrs = ['age', 'balance', 'day', 'duration', 'campaign', 'pdays',
               'previous']
