@@ -3,5 +3,5 @@
 pip install pandas
 pip install tqdm
 
-python3 car.py
+python car.py
 python bank.py
