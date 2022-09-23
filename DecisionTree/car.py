@@ -43,8 +43,11 @@ for select_method in range(3):
         test_acc[select_method][max_depth] = calc_acc(test_data)
 
 methods = ['Entropy', 'Max Error', 'Gini Index']
+print('Car.py')
+
 print('Training accuracy:')
 print(pd.DataFrame(train_acc, columns=range(1, 7), index=methods))
 print()
 print('Test accuracy:')
 print(pd.DataFrame(test_acc, columns=range(1, 7), index=methods))
+print('\n\n\n')

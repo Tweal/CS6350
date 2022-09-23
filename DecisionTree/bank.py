@@ -73,6 +73,8 @@ def print_res():
     print(pd.DataFrame(test_acc, columns=range(1, 17), index=methods))
 
 
+print('bank.py')
+
 methods = ['Entropy', 'Max Error', 'Gini Index']
 
 print('With UNKNOWN')
