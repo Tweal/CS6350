@@ -1,4 +1,4 @@
-import DecisionTree as dt
+import decision_tree as dt
 import pandas as pd
 
 columns = ['buying', 'maint', 'doors', 'persons',
@@ -24,7 +24,7 @@ test_acc = [[0 for x in range(6)] for y in range(3)]
 
 
 def calc_acc(data):
-    acc = data.apply(lambda row: row['label'] == row['pred'], axis=1)
+    acc = data.apply(lambda row: row[label] == row['pred'], axis=1)
     acc = acc.sum() / len(data)
     return round(acc, 3)
 

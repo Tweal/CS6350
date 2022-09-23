@@ -39,6 +39,9 @@ class DecisionTree:
         self.root = None
 
     '''Generates the decision tree using the current ID3 parameters.
+        NOTE: This function does not return anything, it saves the root of the
+        tree into self.root!
+
         Required Inputs
         ------
         data: pandas dataframe
@@ -57,24 +60,32 @@ class DecisionTree:
 
         while len(stack) > 0:
             cur = stack.pop(0)
-            cur.children = self.ID3(cur)  # TODO METHOD TO RETURN CHILD NODES
+            cur.children = self.ID3(cur)
             stack.extend(cur.children.values())
 
+    '''Function to process nodes of the tree. Returns the children if existant
+        Note: This function is not recursive and relies on a stack
+        implemented in the helper function generate_tree.
+    '''
     def ID3(self, root):
-        # Base cases; already leaf, pure, max depth, no attrs left
+        # Base case already leaf, therefore it'll error when calculating purity
         if (root.is_leaf):
             return {}
 
         full_probs = DecisionTree._calc_probs(root.data, self.label)
         full_purity = self.method(full_probs.values())
 
-        if (full_purity == 0):
+        # More base cases; pure, max depth, no attrs left
+        if (full_purity == 0
+                or len(root.attrs) == 0
+                or root.depth == self.max_depth):
             root.is_leaf = True
-            root.label = root.data[self.label].unique()[0]
-            return {}
-        if (len(root.attrs) == 0 or root.depth == self.max_depth):
-            root.is_leaf = True
-            root.label = root.data[self.label].mode()[0]
+            labels = root.data[self.label]
+            # If we're pure then we take the only label available
+            # else take the most common label.
+            # Note both unique and mode return a series for pythonic reasons
+            root.label = (labels.unique() if full_purity == 0
+                          else labels.mode())[0]
             return {}
 
         # Identify individual attribute purities
@@ -130,6 +141,36 @@ class DecisionTree:
         while not node.is_leaf:
             node = node.children[entry[node.best_attr]]
         return node.label
+
+    '''Loops over all attributes and if continious converts them to binary.
+        The method of conversion is by splitting at the median.
+        It should be noted that this will modify the passed in data.
+        Inputs
+        ------
+        data: Pandas DataFrame
+            A dataframe containing all data
+        cont_attrs: list
+            A subset of the columns of data to be disretized
+    '''
+    def discretize_data(data, cont_attrs):
+        for c in cont_attrs:
+            median = data[c].median()
+            data[c] = data[c].apply(lambda x: int(x < median))
+
+    '''Replaces missing value, val, with majority from train_data.
+        val defaults to 'unkown' but can any value can be passed to replace.
+    '''
+    def fill_missing(data, train_data, val='unknown'):
+        for attr in data.columns:
+            counts = list(train_data[attr].value_counts().index)
+            # This if is needed in case val is the most common
+            if counts[0] != val:
+                majority = counts[0]
+            else:
+                majority = counts[1]
+            data[attr] = data[attr].apply(lambda x: majority if x == val
+                                          else x)
+        print()
 
     '''Returns a dict of the probabilities of label values for the data
         Inputs
