@@ -37,7 +37,7 @@ for select_method in range(3):
         train_data['pred'] = tree.classify(train_data)
         train_acc[select_method][max_depth] = calc_acc(train_data)
 
-        test_data['pred']= tree.classify(test_data)
+        test_data['pred'] = tree.classify(test_data)
         test_acc[select_method][max_depth] = calc_acc(test_data)
 
 methods = ['Entropy', 'Max Error', 'Gini Index']
