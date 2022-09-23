@@ -1,6 +1,8 @@
 import decision_tree as dt
 import pandas as pd
 
+pd.set_option('display.max_colwidth', None)
+
 columns = ['buying', 'maint', 'doors', 'persons',
            'lug_boot', 'safety', 'label']
 

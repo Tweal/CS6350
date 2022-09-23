@@ -2,6 +2,8 @@ import decision_tree as dt
 import pandas as pd
 from tqdm import tqdm as tqdm
 
+pd.set_option('display.max_colwidth', None)
+
 columns = ['age', 'job', 'marital', 'education', 'default', 'balance',
            'housing', 'loan', 'contact', 'day', 'month', 'duration',
            'campaign', 'pdays', 'previous', 'poutcome', 'y']
