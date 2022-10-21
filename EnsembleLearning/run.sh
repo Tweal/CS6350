@@ -9,9 +9,9 @@ python driver.py ada
 
 python driver.py bagged
 
-python driver.py bvdbagged
-
 python driver.py rf
+
+python driver.py bvdbagged
 
 python driver.py bvdrf
 
