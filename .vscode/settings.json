@@ -1,4 +1,11 @@
 {
     "python.linting.pycodestyleEnabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "python.autoComplete.extraPaths": [
+    
+    ],
+    "python.linting.pycodestyleArgs":[
+        "--ignore=E402"
+    ],
+    "python.analysis.extraPaths": []
 }

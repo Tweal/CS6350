@@ -1,6 +1,7 @@
 from functools import reduce
 from math import log2
 import pandas as pd
+import numpy as np
 import copy
 
 
@@ -31,10 +32,10 @@ class DecisionTree:
         1: Majority Error
         2: Gini Index
     '''
-    def __init__(self, label: str, selection_method: int, max_depth: int):
+    def __init__(self, label: str, max_depth: int, selection_method=0):
         self.label = label
-        self.method = [DecisionTree._calc_H, DecisionTree._calc_ME,
-                       DecisionTree._calc_GI][selection_method]
+        self.method = [self._calc_H, self._calc_ME,
+                       self._calc_GI][selection_method]
         self.max_depth = max_depth
         self.root = None
 
@@ -72,7 +73,7 @@ class DecisionTree:
         if (root.is_leaf):
             return {}
 
-        full_probs = DecisionTree._calc_probs(root.data, self.label)
+        full_probs = self._calc_probs(root.data, self.label)
         full_purity = self.method(full_probs.values())
 
         # More base cases; pure, max depth, no attrs left
@@ -80,36 +81,11 @@ class DecisionTree:
                 or len(root.attrs) == 0
                 or root.depth == self.max_depth):
             root.is_leaf = True
-            labels = root.data[self.label]
-            # If we're pure then we take the only label available
-            # else take the most common label.
-            # Note both unique and mode return a series for pythonic reasons
-            root.label = (labels.unique() if full_purity == 0
-                          else labels.mode())[0]
+            # Set label to most common value
+            root.label = self._find_mode(root.data)
             return {}
 
-        # Identify individual attribute purities
-        gains = {}
-        for attr in root.attrs:
-            attr_dict = {value: subset
-                         for value, subset
-                         in root.data.groupby(attr)}
-            attr_probs = {value: DecisionTree._calc_probs(subset, self.label)
-                          for value, subset
-                          in attr_dict.items()}
-            attr_purity = {value: self.method(probs.values())
-                           for value, probs
-                           in attr_probs.items()}
-            attr_weights = {value: len(subset) / len(root.data)
-                            for value, subset
-                            in attr_dict.items()}
-            weighted_purities = [weight * purity
-                                 for weight, purity
-                                 in zip(attr_weights.values(),
-                                        attr_purity.values())]
-            gains[attr] = full_purity - sum(weighted_purities)
-
-        root.best_attr = max(gains, key=gains.get)
+        root.best_attr = self._find_best_attr(root, full_purity)
         child_attrs = copy.deepcopy(root.attrs)
         child_attrs.pop(root.best_attr, None)
 
@@ -125,11 +101,41 @@ class DecisionTree:
 
             if (len(subset) == 0):
                 child.is_leaf = True
-                child.label = root.data[self.label].mode()[0]
+                child.label = self._find_mode(root.data[self.label])
 
             root.children[value] = child
 
         return root.children
+
+    '''This is so I can overload it in children for weighted
+        mode() returns a list so 0 index to get first.
+    '''
+    def _find_mode(self, labels):
+        return labels.mode()[0]
+
+    def _find_best_attr(self, root, full_purity):
+        # Identify individual attribute purities
+        gains = {}
+        for attr in root.attrs:
+            attr_dict = {value: subset
+                         for value, subset
+                         in root.data.groupby(attr)}
+            attr_probs = {value: self._calc_probs(subset, self.label)
+                          for value, subset
+                          in attr_dict.items()}
+            attr_purity = {value: self.method(probs.values())
+                           for value, probs
+                           in attr_probs.items()}
+            attr_weights = {value: len(subset) / len(root.data)
+                            for value, subset
+                            in attr_dict.items()}
+            weighted_purities = [weight * purity
+                                 for weight, purity
+                                 in zip(attr_weights.values(),
+                                        attr_purity.values())]
+            gains[attr] = full_purity - sum(weighted_purities)
+
+        return max(gains, key=gains.get)
 
     def classify(self, entry):
         if (type(entry) is not pd.DataFrame):
@@ -180,12 +186,12 @@ class DecisionTree:
         label: String
             A string corresponding to one of the columns of the dataframe
     '''
-    def _calc_probs(data, label):
+    def _calc_probs(self, data, label):
         return dict(data[label].value_counts().map(lambda x: x / len(data)))
 
     '''Calculates the Entropy, H, of a set of probabilites, S.
     '''
-    def _calc_H(S):
+    def _calc_H(self, S):
         if round(sum(S), 3) != 1:
             raise Exception('Something went wrong,' +
                             ' probabilities do not sum to 1')
@@ -195,7 +201,7 @@ class DecisionTree:
 
     '''Calculates the Majority Error, ME, of a set of probabilites, S.
     '''
-    def _calc_ME(S):
+    def _calc_ME(self, S):
         if round(sum(S), 3) != 1:
             raise Exception('Something went wrong,' +
                             ' probabilities do not sum to 1')
@@ -203,7 +209,7 @@ class DecisionTree:
 
     '''Calculates the Gini Index, GI, of a set of probabilites, S.
     '''
-    def _calc_GI(S):
+    def _calc_GI(self, S):
         if round(sum(S), 3) != 1:
             raise Exception('Something went wrong,' +
                             ' probabilities do not sum to 1')
@@ -220,11 +226,11 @@ if __name__ == '__main__':
     })
     attrs = {
         'x1': [0, 1],
-        'x2': [0, 1, 3],
+        'x2': [0, 1],
         'x3': [0, 1],
         'x4': [0, 1],
     }
-    tree = DecisionTree('y', 0, 2)
+    tree = DecisionTree('y', 2)
     tree.generate_tree(data, attrs)
     print(tree._classify_single({'x1': 0, 'x2': 0, 'x3': 0, 'x4': 0, 'y': 0}))
     print(tree.classify(data))

@@ -1,5 +1,7 @@
-import decision_tree as dt
 import pandas as pd
+import sys
+sys.path.append('..')
+import DecisionTree.decision_tree as dt
 
 pd.set_option('display.max_colwidth', None)
 pd.set_option('display.max_rows', 500)
@@ -9,18 +11,18 @@ pd.set_option('display.width', 1000)
 columns = ['buying', 'maint', 'doors', 'persons',
            'lug_boot', 'safety', 'label']
 
-train_data = pd.read_csv('car/train.csv', names=columns)
+train_data = pd.read_csv('../data/car/train.csv', names=columns)
 
 test_data = pd.read_csv('car/test.csv', names=columns)
 
 attrs = {
-        'buying': ['vhigh', 'high', 'med', 'low'],
-        'maint':  ['vhigh', 'high', 'med', 'low'],
-        'doors':  ['2', '3', '4', '5more'],
-        'persons': ['2', '4', 'more'],
-        'lug_boot': ['small', 'med', 'big'],
-        'safety':  ['low', 'med', 'high']
-        }
+    'buying': ['vhigh', 'high', 'med', 'low'],
+    'maint': ['vhigh', 'high', 'med', 'low'],
+    'doors': ['2', '3', '4', '5more'],
+    'persons': ['2', '4', 'more'],
+    'lug_boot': ['small', 'med', 'big'],
+    'safety': ['low', 'med', 'high']
+}
 
 label = 'label'
 

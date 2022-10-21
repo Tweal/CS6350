@@ -1,4 +1,6 @@
+from adaboost import ADABoost
 import pandas as pd
+import matplotlib.pyplot as plt
 from tqdm import tqdm as tqdm
 import sys
 sys.path.append('..')
@@ -46,49 +48,49 @@ attrs = {
 }
 label = 'y'
 
-train_acc = [[0 for x in range(16)] for y in range(3)]
-test_acc = [[0 for x in range(16)] for y in range(3)]
-
-
-def calc_acc(data):
-    acc = data.apply(lambda row: row[label] == row['pred'], axis=1)
-    acc = acc.sum() / len(data)
-    return round(acc, 3)
-
-
-def run():
-    for select_method in range(3):
-        print(["Entropy", "Majority Error", "Gini Index"][select_method])
-        for max_depth in tqdm(range(16)):
-            tree = dt.DecisionTree(label, select_method, max_depth + 1)
-            tree.generate_tree(train_data, attrs)
-
-            train_data['pred'] = tree.classify(train_data)
-            train_acc[select_method][max_depth] = calc_acc(train_data)
-
-            test_data['pred'] = tree.classify(test_data)
-            test_acc[select_method][max_depth] = calc_acc(test_data)
-
-
-def print_res():
-    print('Training accuracy:')
-    print(pd.DataFrame(train_acc, columns=range(1, 17), index=methods))
-    print()
-    print('Test accuracy:')
-    print(pd.DataFrame(test_acc, columns=range(1, 17), index=methods))
-
 
 print('bank.py')
 
-methods = ['Entropy', 'Max Error', 'Gini Index']
 
-print('With UNKNOWN')
-run()
-print_res()
+def ADA(print_results=False):
+    T = 10
+    train_err = []
+    test_err = []
+    train_stump_errs = []
+    test_stump_errs = []
 
-dt.DecisionTree.fill_missing(train_data, train_data)
-dt.DecisionTree.fill_missing(test_data, train_data)
+    ada = ADABoost(train_data, attrs, label)
+    for t in range(1, T) if print_results else tqdm(range(1, T)):
+        if print_results:
+            print(f'Iteration {t}')
 
-print('\nReplaced UNKNOWN')
-run()
-print_res()
+        # Run single iteration
+        ada.run_single()
+
+        # Save training results
+        train_data['pred'] = ada.classify(train_data)
+        train_err.append(ada.calc_err(train_data))
+        # train_stump_errs.append(ada.get_stump_errs(train_data))
+        if print_results:
+            print(f'  Train Error : {train_err[-1]}')
+            # print(f'  Train Stump Errors : {train_stump_errs[-1]}')
+
+        # Save test results
+        test_data['pred'] = ada.classify(test_data)
+        test_err.append(ada.calc_err(test_data))
+        # test_stump_errs.append(ada.get_stump_errs(test_data))
+        if print_results:
+            print(f'  Test Error : {test_err[-1]}')
+            # print(f'  Test Stump Errors : {test_stump_errs[-1]}')
+
+        # breakpoint
+
+    plt.plot(train_err)
+    plt.plot(test_err)
+    plt.show()
+
+    breakpoint
+
+
+ADA()
+print()
