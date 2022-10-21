@@ -25,7 +25,6 @@ class Node:
 
 
 class DecisionTree:
-    methods = None
 
     '''Selection method is expected to be an integer corresponding as follows:
         0: Entropy

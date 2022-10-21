@@ -1,3 +1,4 @@
+from random_forest import RandomForest
 from bagged_trees import BaggedTrees
 from adaboost import ADABoost
 import pandas as pd
@@ -52,11 +53,11 @@ label = 'y'
 
 
 print('bank.py')
+T = 501
+t_range = range(1, T, 10)
 
 
 def ADA(print_results=False):
-    T = 501
-    t_range = range(1, T, 10)
     train_err = []
     test_err = []
 
@@ -110,8 +111,6 @@ def ADA(print_results=False):
 
 
 def bagged_trees(print_results=False):
-    T = 501
-    t_range = range(1, T, 10)
     train_err = []
     test_err = []
 
@@ -154,10 +153,10 @@ def bagged_trees(print_results=False):
 
 def experiment():
     bags = []
-    for _ in tqdm(range(100)):
+    for _ in tqdm(range(10)):
         sample = train_data.sample(n=1000).reset_index()
         bags.append(BaggedTrees(sample, attrs, label))
-        bags[-1].run(T=500, keep_output=False)
+        bags[-1].run(T=50, keep_output=False)
         breakpoint
 
     '''First tree only'''
@@ -206,8 +205,50 @@ def experiment():
     breakpoint
 
 
+def random_forest(print_results=False):
+
+    for size in [2, 4, 6]:
+        rf = RandomForest(train_data, attrs, label, size)
+
+        train_err = []
+        test_err = []
+
+        for t in t_range if print_results else tqdm(t_range):
+            if print_results:
+                print(f'Iteration {t}')
+
+            # Run single iteration
+            rf.run_single()
+
+            # Save training results
+            train_data['pred'] = rf.classify(train_data)
+            train_err.append(rf.calc_err(train_data))
+            if print_results:
+                print(f'  Train Error : {train_err[-1]}')
+
+            # Save test results
+            test_data['pred'] = rf.classify(test_data)
+            test_err.append(rf.calc_err(test_data))
+            if print_results:
+                print(f'  Test Error : {test_err[-1]}')
+
+        print(f'  Final Train Error : {train_err[-1]}')
+        print(f'  Final Test Error : {test_err[-1]}')
+
+        plt.plot(t_range, train_err)
+        plt.plot(t_range, test_err)
+        plt.legend([f'Train ({size})', f'Test ({size})'])
+        plt.title('Bagged Error')
+        plt.xlabel('Iteration')
+        plt.ylabel('Error Rate')
+
+    plt.show()
+    breakpoint
+
+
 # ADA()
 # bagged_trees()
-experiment()
+# experiment()
+random_forest()
 
 breakpoint
