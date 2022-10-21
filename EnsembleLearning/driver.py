@@ -158,10 +158,10 @@ def bvd_bagged():
     print('Expected runtime: Goodluck...')
 
     bags = []
-    for _ in tqdm(range(10)):
+    for _ in tqdm(range(100)):
         sample = train_data.sample(n=1000).reset_index()
         bags.append(BaggedTrees(sample, attrs, label))
-        bags[-1].run(T=50, keep_output=False)
+        bags[-1].run(T=500, keep_output=False)
         breakpoint
 
     '''First tree only'''
@@ -260,10 +260,10 @@ def bvd_rf():
     print('Expected runtime: Goodluck...')
 
     forests = []
-    for _ in tqdm(range(10)):
+    for _ in tqdm(range(100)):
         sample = train_data.sample(n=1000).reset_index()
         forests.append(RandomForest(sample, attrs, label, 6))
-        forests[-1].run(T=50, keep_output=False)
+        forests[-1].run(T=550, keep_output=False)
         breakpoint
 
     '''First tree only'''
@@ -312,7 +312,7 @@ def bvd_rf():
     breakpoint
 
 
-which = 'bvdrf'#sys.argv[1]
+which = sys.argv[1]
 if(which.lower() == 'ada'):
     ADA()
 
