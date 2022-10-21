@@ -1,5 +1,7 @@
+from bagged_trees import BaggedTrees
 from adaboost import ADABoost
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm as tqdm
 import sys
@@ -107,6 +109,105 @@ def ADA(print_results=False):
     breakpoint
 
 
-ADA()
+def bagged_trees(print_results=False):
+    T = 501
+    t_range = range(1, T, 10)
+    train_err = []
+    test_err = []
+
+    bt = BaggedTrees(train_data, attrs, label)
+    for t in t_range if print_results else tqdm(t_range):
+        if print_results:
+            print(f'Iteration {t}')
+
+        # Run single iteration
+        bt.run_single()
+
+        # Save training results
+        train_data['pred'] = bt.classify(train_data)
+        train_err.append(bt.calc_err(train_data))
+        if print_results:
+            print(f'  Train Error : {train_err[-1]}')
+
+        # Save test results
+        test_data['pred'] = bt.classify(test_data)
+        test_err.append(bt.calc_err(test_data))
+        if print_results:
+            print(f'  Test Error : {test_err[-1]}')
+
+        breakpoint
+
+    print(f'  Final Train Error : {train_err[-1]}')
+    print(f'  Final Test Error : {test_err[-1]}')
+
+    plt.plot(t_range, train_err)
+    plt.plot(t_range, test_err)
+    plt.legend(['Train', 'Test'])
+    plt.title('Bagged Error')
+    plt.xlabel('Iteration')
+    plt.ylabel('Error Rate')
+
+    plt.show()
+
+    breakpoint
+
+
+def experiment():
+    bags = []
+    for _ in tqdm(range(100)):
+        sample = train_data.sample(n=1000).reset_index()
+        bags.append(BaggedTrees(sample, attrs, label))
+        bags[-1].run(T=500, keep_output=False)
+        breakpoint
+
+    '''First tree only'''
+    trees = [bag.trees[0] for bag in bags]
+    test_temp = test_data.copy()
+    # need something to map label to 0 / 1 later
+    val = test_temp[label].unique()[0]
+
+    # Creates a series (ie column) of lists for tree votes
+    temp = test_temp.apply(lambda row: [tree.classify(row)
+                                        for tree in trees], axis=1)
+
+    # Collapse all trees into the average of their labels
+    test_temp['h'] = temp.apply(lambda row: np.mean([int(x == val) for
+                                                     x in row]))
+
+    # The lambda is calculating the bias for each sample before taking the mean
+    bias = np.mean(test_temp.apply(lambda row: (int(row[label] == val) - 
+                                                row['h']) ** 2, axis=1))
+    var = np.var(test_temp["h"])
+    se = bias + var
+    print(f'  Single Tree:')
+    print(f'\tBias: {bias}')
+    print(f'\tVariance: {var}')
+    print(f'\tSquared Error: {se}')
+
+    '''All Trees'''
+    # Creates a series (ie column) of lists for tree votes
+    temp = test_temp.apply(lambda row: [bag.classify(row)
+                                        for bag in bags], axis=1)
+
+    # Collapse all trees into the average of their labels
+    test_temp['h'] = temp.apply(lambda row: np.mean([int(x == val) for
+                                                     x in row]))
+
+    # The lambda is calculating the bias for each sample before taking the mean
+    bias = np.mean(test_temp.apply(lambda row: (int(row[label] == val) - 
+                                                row['h']) ** 2, axis=1))
+    var = np.var(test_temp["h"])
+    se = bias + var
+    print(f'  Bagged Trees:')
+    print(f'\tBias: {bias}')
+    print(f'\tVariance: {var}')
+    print(f'\tSquared Error: {se}')
+
+    breakpoint
+
+
+# ADA()
+# bagged_trees()
+experiment()
 
 breakpoint

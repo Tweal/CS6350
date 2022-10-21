@@ -1,6 +1,5 @@
 
-from functools import reduce
-from math import log2, log
+from math import log
 from tqdm import tqdm as tqdm
 import numpy as np
 import pandas as pd
