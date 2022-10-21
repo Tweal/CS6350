@@ -51,8 +51,6 @@ attrs = {
 }
 label = 'y'
 
-
-print('bank.py')
 T = 501
 t_range = range(1, T, 10)
 

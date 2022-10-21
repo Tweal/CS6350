@@ -14,3 +14,5 @@ python driver.py bvdbagged
 python driver.py rf
 
 python driver.py bvdrf
+
+read
