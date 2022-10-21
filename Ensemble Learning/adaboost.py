@@ -96,7 +96,7 @@ class ADABoost:
         self.label = label
 
     def run(self, T=1000):
-        for _ in tqdm(range(1, T)):
+        for _ in tqdm(range(1, T + 1)):
             self.run_single()
 
     def run_single(self):

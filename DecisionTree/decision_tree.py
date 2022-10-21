@@ -101,7 +101,7 @@ class DecisionTree:
 
             if (len(subset) == 0):
                 child.is_leaf = True
-                child.label = self._find_mode(root.data[self.label])
+                child.label = self._find_mode(root.data)
 
             root.children[value] = child
 
@@ -110,8 +110,8 @@ class DecisionTree:
     '''This is so I can overload it in children for weighted
         mode() returns a list so 0 index to get first.
     '''
-    def _find_mode(self, labels):
-        return labels.mode()[0]
+    def _find_mode(self, data):
+        return data[self.label].mode()[0]
 
     def _find_best_attr(self, root, full_purity):
         # Identify individual attribute purities

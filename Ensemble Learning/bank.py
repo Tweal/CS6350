@@ -53,12 +53,13 @@ print('bank.py')
 
 
 def ADA(print_results=False):
-    T = 500
+    T = 501
+    t_range = range(1, T, 10)
     train_err = []
     test_err = []
 
     ada = ADABoost(train_data, attrs, label)
-    for t in range(1, T) if print_results else tqdm(range(1, T)):
+    for t in t_range if print_results else tqdm(t_range):
         if print_results:
             print(f'Iteration {t}')
 
@@ -83,10 +84,9 @@ def ADA(print_results=False):
     print(f'  Final Test Error : {test_err[-1]}')
 
     _, (ax1, ax2) = plt.subplots(2, 1)
-    x = range(1, T)
 
-    ax1.plot(x, train_err)
-    ax1.plot(x, test_err)
+    ax1.plot(t_range, train_err)
+    ax1.plot(t_range, test_err)
     ax1.legend(['Train', 'Test'])
     ax1.set_title('ADABoost Error')
     ax1.set_xlabel('Iteration')
@@ -95,8 +95,8 @@ def ADA(print_results=False):
     # Instructions unclear so I'm plotting the tree generated at that iteration
     train_stump_errs = ada.get_stump_errs(train_data)
     test_stump_errs = ada.get_stump_errs(test_data)
-    ax2.plot(x, train_stump_errs)
-    ax2.plot(test_stump_errs)
+    ax2.plot(t_range, train_stump_errs)
+    ax2.plot(t_range, test_stump_errs)
     ax2.legend(['Train', 'Test'])
     ax2.set_title('Each Stump Error')
     ax2.set_ylabel('Error Rate')
@@ -108,4 +108,5 @@ def ADA(print_results=False):
 
 
 ADA()
-print()
+
+breakpoint

@@ -60,7 +60,7 @@ def run():
     for select_method in range(3):
         print(["Entropy", "Majority Error", "Gini Index"][select_method])
         for max_depth in tqdm(range(16)):
-            tree = dt.DecisionTree(label, select_method, max_depth + 1)
+            tree = dt.DecisionTree(label, max_depth + 1, select_method)
             tree.generate_tree(train_data, attrs)
 
             train_data['pred'] = tree.classify(train_data)
