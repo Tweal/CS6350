@@ -56,7 +56,7 @@ class RandomForest:
             self.run_single()
 
     def run_single(self):
-        self.trees.append(RandomTree(self.label, max_depth=6))
+        self.trees.append(RandomTree(self.label, max_depth=np.inf))
         self.trees[-1].generate_tree(self.data, self.attrs, self.subset_size)
 
     def classify(self, entry):

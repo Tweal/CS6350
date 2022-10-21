@@ -1,4 +1,4 @@
-from random_forest import RandomForest
+from random_forest import RandomForest, RandomTree
 from bagged_trees import BaggedTrees
 from adaboost import ADABoost
 import pandas as pd
@@ -58,6 +58,7 @@ t_range = range(1, T, 10)
 
 
 def ADA(print_results=False):
+    print('Running AdaBoost. Expected run time: 5 minutes')
     train_err = []
     test_err = []
 
@@ -111,6 +112,7 @@ def ADA(print_results=False):
 
 
 def bagged_trees(print_results=False):
+    print('Running Bagged Trees. Expected Run Time: 15 minutes')
     train_err = []
     test_err = []
 
@@ -151,7 +153,10 @@ def bagged_trees(print_results=False):
     breakpoint
 
 
-def experiment():
+def bvd_bagged():
+    print('Running Bias Variance Decomposition for Bagged.')
+    print('Expected runtime: Goodluck...')
+
     bags = []
     for _ in tqdm(range(10)):
         sample = train_data.sample(n=1000).reset_index()
@@ -206,6 +211,7 @@ def experiment():
 
 
 def random_forest(print_results=False):
+    print('Running random forest: Expected run time: 36 minutes')
 
     for size in [2, 4, 6]:
         rf = RandomForest(train_data, attrs, label, size)
@@ -237,18 +243,89 @@ def random_forest(print_results=False):
 
         plt.plot(t_range, train_err)
         plt.plot(t_range, test_err)
-        plt.legend([f'Train ({size})', f'Test ({size})'])
-        plt.title('Bagged Error')
-        plt.xlabel('Iteration')
-        plt.ylabel('Error Rate')
+
+    plt.legend([f'Train (2)', f'Test (2)',
+                f'Train (4)', f'Test (4)',
+                f'Train (6)', f'Test (6)'])
+    plt.title('Random Forest Error')
+    plt.xlabel('Iteration')
+    plt.ylabel('Error Rate')
 
     plt.show()
     breakpoint
 
 
-# ADA()
-# bagged_trees()
-# experiment()
-random_forest()
+def bvd_rf():
+    print('Running Bias Variance Decomposition for Random Forest.')
+    print('Expected runtime: Goodluck...')
+
+    forests = []
+    for _ in tqdm(range(10)):
+        sample = train_data.sample(n=1000).reset_index()
+        forests.append(RandomForest(sample, attrs, label, 6))
+        forests[-1].run(T=50, keep_output=False)
+        breakpoint
+
+    '''First tree only'''
+    trees = [forest.trees[0] for forest in forests]
+    test_temp = test_data.copy()
+    # need something to map label to 0 / 1 later
+    val = test_temp[label].unique()[0]
+
+    # Creates a series (ie column) of lists for tree votes
+    temp = test_temp.apply(lambda row: [tree.classify(row)
+                                        for tree in trees], axis=1)
+
+    # Collapse all trees into the average of their labels
+    test_temp['h'] = temp.apply(lambda row: np.mean([int(x == val) for
+                                                     x in row]))
+
+    # The lambda is calculating the bias for each sample before taking the mean
+    bias = np.mean(test_temp.apply(lambda row: (int(row[label] == val) - 
+                                                row['h']) ** 2, axis=1))
+    var = np.var(test_temp["h"])
+    se = bias + var
+    print(f'  Single Tree:')
+    print(f'\tBias: {bias}')
+    print(f'\tVariance: {var}')
+    print(f'\tSquared Error: {se}')
+
+    '''All Trees'''
+    # Creates a series (ie column) of lists for tree votes
+    temp = test_temp.apply(lambda row: [forest.classify(row)
+                                        for forest in forests], axis=1)
+
+    # Collapse all trees into the average of their labels
+    test_temp['h'] = temp.apply(lambda row: np.mean([int(x == val) for
+                                                     x in row]))
+
+    # The lambda is calculating the bias for each sample before taking the mean
+    bias = np.mean(test_temp.apply(lambda row: (int(row[label] == val) - 
+                                                row['h']) ** 2, axis=1))
+    var = np.var(test_temp["h"])
+    se = bias + var
+    print(f'  Random Forest:')
+    print(f'\tBias: {bias}')
+    print(f'\tVariance: {var}')
+    print(f'\tSquared Error: {se}')
+
+    breakpoint
+
+
+which = 'bvdrf'#sys.argv[1]
+if(which.lower() == 'ada'):
+    ADA()
+
+if(which.lower() == 'bagged'):
+    bagged_trees()
+
+if(which.lower() == 'bvdbagged'):
+    bvd_bagged()
+
+if(which.lower() == 'rf'):
+    random_forest()
+
+if(which.lower() == 'bvdrf'):
+    bvd_rf()
 
 breakpoint
