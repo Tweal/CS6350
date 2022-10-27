@@ -52,7 +52,7 @@ attrs = {
 label = 'y'
 
 T = 501
-t_range = range(1, T, 10)
+t_range = range(1, T)
 
 
 def ADA(print_results=False):
