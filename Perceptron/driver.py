@@ -35,10 +35,12 @@ print(f'  Weights: {np.reshape(weights, (1, -1))}')
 # Voted Perceptron
 print('\nVoted Perceptron')
 counts, weights = perceptron.voted(train_x, train_y)
-if len(sys.argv) > 1 and sys.argv[1] == 'output':
-    for c, w in zip(counts, weights):
-        print(f'  Count: {c[0]}, Weights: {w}')
-    print()
+for i in range(5):
+    print(f'  Count: {counts[i][0]}, Weights: {weights[i]}')
+print('  ...')
+for i in range(-5, 0):
+    print(f'  Count: {counts[i][0]}, Weights: {weights[i]}')
+print()
 # Weights is currently c x 5, need it to be 5 x c
 weights = np.transpose(weights)
 # This should give a 500 x c matrix
