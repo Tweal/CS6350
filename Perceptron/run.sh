@@ -5,6 +5,6 @@ pip install tqdm
 pip install matplotlib
 pip install numpy
 
-python driver.py output
+python driver.py
 
 read
