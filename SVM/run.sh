@@ -6,6 +6,10 @@ pip install matplotlib
 pip install numpy
 pip install scipy
 
+clear
+
+echo "Running Primal: This should be quick"
+
 python driver.py primal
 
 echo "Running Dual: This will take a moment"
