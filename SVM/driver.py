@@ -92,8 +92,8 @@ def dual():
         pred = np.sign(train_x @ w)
         num_err = np.sum(np.abs(pred - np.reshape(train_y, (-1, 1))))
         # Divide by 2 to offset the conversion to -1, 1.
-        # That makes the diffs 2 instead of 1. Without it our err ends up double
-        # what it should be.
+        # That makes the diffs 2 instead of 1. Without it our err ends up
+        # double what it should be.
         train_err = num_err / train_y.shape[0] / 2
 
         # Test errs
@@ -144,5 +144,3 @@ if(not which or which.lower() == 'dual'):
 
 if(not which or which.lower() == 'gk'):
     gk()
-
-breakpoint
