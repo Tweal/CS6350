@@ -44,12 +44,16 @@ def run(random_weights):
 
         test_err = 1 - np.mean(preds == test_y)
 
-        print(f'  width: {width}, train error: {train_err.round(3)}, test error: {test_err.round(3)}')
+        print(f'  width: {width}, train error: {train_err.round(3)}, '
+              f'test error: {test_err.round(3)}')
 
 
-if __name__ == '__main__':
+which = sys.argv[1] if len(sys.argv) != 1 else False
+if(not which or which.lower() == 'random'):
     print('Neural Network')
-    print(' Randomized Weights')
+    print(' With Randomized Initial Weights')
     run(True)
-    print(' Zero Weights')
+if(not which or which.lower() == 'zero'):
+    print('Nerual Network')
+    print(' With Zero Initial Weights')
     run(False)
