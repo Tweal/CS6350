@@ -5,6 +5,8 @@ pip install tqdm
 pip install matplotlib
 pip install numpy
 
+clear
+
 echo "Running Neural Network with randomized initial weights."
 echo "This will take a moment"
 python driver.py random
